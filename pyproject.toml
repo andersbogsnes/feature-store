@@ -27,7 +27,8 @@ dependencies = ["pyarrow", "pandas"]
 dynamic = ["version"]
 
 [project.optional-dependencies]
-dev = ["pytest"]
+test = ["pytest"]
+dev = ["pytest", "tox", "pre-commit"]
 
 [project.urls]
 Documentation = "https://github.com/andersbogsnes/feature-store#readme"

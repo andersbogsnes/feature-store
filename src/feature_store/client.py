@@ -9,7 +9,7 @@ import pyarrow.parquet as pq
 class Feature:
     name: str
     uri: str
-    _data: pa.Table
+    _data: pa.Table = None
 
     def upload_batch(self, df: pd.DataFrame) -> "Feature":
         """Upload a batch of data to the URI"""
