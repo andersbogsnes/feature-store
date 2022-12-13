@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from typing import Optional
 
 import pandas as pd
 import pyarrow as pa
@@ -40,7 +41,7 @@ class Client:
         self.features.append(new_feature)
         return new_feature
 
-    def get_feature(self, feature_name: str) -> Feature | None:
+    def get_feature(self, feature_name: str) -> Optional[Feature]:
         """Get a single feature from the store"""
         try:
             return next(
