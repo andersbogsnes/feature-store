@@ -58,14 +58,6 @@ def test_can_get_metadata_from_feature(client: Client, age_feature: Feature):
     assert data.uri == age_feature.uri
 
 
-def test_can_upload_data_to_feature(
-    client: Client, age_df: pd.DataFrame, age_feature: Feature
-):
-    age_feature.upload_batch(age_df)
-    file_location = pathlib.Path(age_feature.uri)
-    assert file_location.exists()
-
-
 def test_can_load_arrow_data_from_feature(
     client: Client, age_feature: Feature, age_df: pd.DataFrame
 ):
