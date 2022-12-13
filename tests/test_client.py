@@ -7,12 +7,21 @@ import pytest
 from pandas.testing import assert_frame_equal
 
 from feature_store import Client
-from feature_store.client import Feature
+from feature_store.backends.local import LocalStorageBackend
+from feature_store.feature import Feature
 
 
 @pytest.fixture(scope="session")
-def client() -> Client:
-    return Client()
+def tmp_dir(tmp_path_factory: pytest.TempPathFactory) -> pathlib.Path:
+    return tmp_path_factory.mktemp("data")
+
+
+@pytest.fixture(scope="session")
+def client(tmp_dir) -> Client:
+    backend = LocalStorageBackend(
+        database_url=f"sqlite:///{tmp_dir.joinpath('features.db')}"
+    )
+    return Client(registry=backend)
 
 
 @pytest.fixture(scope="session")
@@ -27,11 +36,6 @@ def age_df() -> pd.DataFrame:
     return pd.DataFrame(
         columns=["age"], index=([batch_1] * 50) + ([batch_2] * 50), data=customer_ages
     )
-
-
-@pytest.fixture(scope="session")
-def tmp_dir(tmp_path_factory: pytest.TempPathFactory) -> pathlib.Path:
-    return tmp_path_factory.mktemp("data")
 
 
 @pytest.fixture(scope="session")

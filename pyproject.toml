@@ -20,12 +20,12 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: Implementation :: CPython",
 ]
-dependencies = ["pyarrow", "pandas"]
+dependencies = ["pyarrow", "pandas", "sqlalchemy"]
 dynamic = ["version"]
 
 [project.optional-dependencies]
 test = ["pytest"]
-dev = ["pytest", "tox", "pre-commit"]
+dev = ["pytest", "tox", "pre-commit", "mypy"]
 
 [project.urls]
 Documentation = "https://github.com/andersbogsnes/feature-store#readme"
@@ -48,3 +48,11 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
 ]
+
+[tool.mypy]
+strict = true
+plugins = ["sqlalchemy.ext.mypy.plugin"]
+
+[[tool.mypy.overrides]]
+module = "pyarrow.*"
+ignore_missing_imports = true
