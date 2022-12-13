@@ -18,14 +18,15 @@ def client() -> Client:
 @pytest.fixture(scope="session")
 def age_df() -> pd.DataFrame:
     n_customers = 100
-    customer_ages = np.random.default_rng().integers(low=0, high=100, size=(n_customers, 1), dtype=np.int8)
+    customer_ages = np.random.default_rng().integers(
+        low=0, high=100, size=(n_customers, 1), dtype=np.int8
+    )
     batch_1 = datetime.date(year=2022, month=1, day=1)
     batch_2 = datetime.date(year=2022, month=2, day=1)
 
-    return pd.DataFrame(columns=["age"],
-                        index=([batch_1] * 50) + ([batch_2] * 50),
-                        data=customer_ages
-                        )
+    return pd.DataFrame(
+        columns=["age"], index=([batch_1] * 50) + ([batch_2] * 50), data=customer_ages
+    )
 
 
 @pytest.fixture(scope="session")
@@ -57,13 +58,17 @@ def test_can_get_metadata_from_feature(client: Client, age_feature: Feature):
     assert data.uri == age_feature.uri
 
 
-def test_can_upload_data_to_feature(client: Client, age_df: pd.DataFrame, age_feature: Feature):
+def test_can_upload_data_to_feature(
+    client: Client, age_df: pd.DataFrame, age_feature: Feature
+):
     age_feature.upload_batch(age_df)
     file_location = pathlib.Path(age_feature.uri)
     assert file_location.exists()
 
 
-def test_can_load_arrow_data_from_feature(client: Client, age_feature: Feature, age_df: pd.DataFrame):
+def test_can_load_arrow_data_from_feature(
+    client: Client, age_feature: Feature, age_df: pd.DataFrame
+):
     age_feature.upload_batch(age_df)
     result = age_feature.download_batch().to_pandas()
     expected = age_df

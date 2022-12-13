@@ -43,6 +43,8 @@ class Client:
     def get_feature(self, feature_name: str) -> Feature | None:
         """Get a single feature from the store"""
         try:
-            return next(feature for feature in self.features if feature.name == feature_name)
+            return next(
+                feature for feature in self.features if feature.name == feature_name
+            )
         except StopIteration:
             return None
