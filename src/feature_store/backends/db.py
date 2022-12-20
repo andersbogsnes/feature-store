@@ -6,6 +6,7 @@ from typing import Generator, Optional
 import sqlalchemy as sa
 from sqlalchemy.orm import Session, registry
 
+from feature_store.auth.base import Auth
 from feature_store.feature import Feature
 
 mapped_registry: registry = registry()
@@ -16,19 +17,23 @@ class FeatureTable:
     __tablename__ = "features"
 
     id: Optional[int] = sa.Column(sa.Integer, primary_key=True)
-    name: str = sa.Column(sa.String, unique=True)
-    uri: str = sa.Column(sa.String)
+    name: str = sa.Column(sa.String, unique=True, nullable=False)
+    uri: str = sa.Column(sa.String, nullable=False)
+    auth_key: str = sa.Column(sa.String, nullable=True)
 
-    def __init__(self, name: str, uri: str):
+    def __init__(self, name: str, uri: str, auth_key: Optional[str]):
         self.name = name
         self.uri = uri
+        self.auth_key = auth_key
 
     @classmethod
     def from_feature(cls, feature: Feature) -> "FeatureTable":
-        return FeatureTable(name=feature.name, uri=feature.uri)
+        return FeatureTable(
+            name=feature.name, uri=feature.uri, auth_key=feature.auth_key
+        )
 
-    def to_feature(self) -> Feature:
-        return Feature(name=self.name, uri=self.uri)
+    def to_feature(self, auth: Optional[Auth] = None) -> Feature:
+        return Feature(name=self.name, uri=self.uri, auth_key=self.auth_key)
 
 
 @dataclass
@@ -50,16 +55,18 @@ class DatabaseStorageBackend:
             session.add(new_row)
             session.commit()
 
-    def get_feature_metadata(self, feature_name: str) -> Optional[Feature]:
+    def get_feature_metadata(
+        self, feature_name: str, auth: Optional[Auth] = None
+    ) -> Optional[Feature]:
         sql = sa.select(FeatureTable).where(FeatureTable.name == feature_name)
 
         with self._session() as session:
             result: Optional[FeatureTable] = session.execute(sql).scalar_one_or_none()
 
-        return None if result is None else result.to_feature()
+        return None if result is None else result.to_feature(auth)
 
-    def get_all_features(self) -> list[Feature]:
+    def get_all_features(self, auth: Optional[Auth] = None) -> list[Feature]:
         sql = sa.select(FeatureTable)
         with self._session() as session:
             result: list[FeatureTable] = session.execute(sql).scalars()
-            return [feature.to_feature() for feature in result]
+            return [feature.to_feature(auth=auth) for feature in result]

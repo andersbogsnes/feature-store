@@ -18,7 +18,7 @@ def backend(tmp_database_path: pathlib.Path) -> LocalStorageBackend:
 
 
 def test_can_add_feature_metadata(backend: LocalStorageBackend):
-    new_feature = Feature(name="age", uri="file:///age.parquet")
+    new_feature = Feature(name="age", uri="file:///age.parquet", auth_key=None)
     backend.add_feature_metadata(new_feature)
     result = backend.get_feature_metadata(new_feature.name)
     assert result == new_feature
@@ -26,8 +26,8 @@ def test_can_add_feature_metadata(backend: LocalStorageBackend):
 
 def test_can_add_multiple_features(backend: LocalStorageBackend):
     features = [
-        Feature(name="age", uri="file:///age.parquet"),
-        Feature(name="height", uri="file:///height.parquet"),
+        Feature(name="age", uri="file:///age.parquet", auth_key=None),
+        Feature(name="height", uri="file:///height.parquet", auth_key=None),
     ]
 
     for feature in features:

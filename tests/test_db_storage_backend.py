@@ -18,7 +18,9 @@ def test_can_get_all_features_when_backend_is_empty(backend: DatabaseStorageBack
 
 
 def test_can_add_and_retrieve_features(backend: DatabaseStorageBackend):
-    new_feature = Feature(name="test_feature", uri="file:///test.parquet")
+    new_feature = Feature(
+        name="test_feature", uri="file:///test.parquet", auth_key=None
+    )
     backend.add_feature_metadata(new_feature)
     result = backend.get_feature_metadata(new_feature.name)
 
@@ -26,7 +28,9 @@ def test_can_add_and_retrieve_features(backend: DatabaseStorageBackend):
 
 
 def test_adding_new_feature_shows_up_in_all_features(backend: DatabaseStorageBackend):
-    new_feature = Feature(name="test_feature2", uri="file://test.parquet")
+    new_feature = Feature(
+        name="test_feature2", uri="file://test.parquet", auth_key=None
+    )
     backend.add_feature_metadata(new_feature)
     result = backend.get_all_features()
     assert result == [new_feature]
