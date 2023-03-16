@@ -3,7 +3,8 @@ from typing import Optional
 
 import pandas as pd
 
-from feature_store.auth.base import Auth
+from feature_store.auth.base import AuthType
+from feature_store.auth.file_auth import FileAuth
 from feature_store.backends.base import Backend
 from feature_store.backends.local import LocalStorageBackend
 from feature_store.feature import Feature
@@ -12,7 +13,7 @@ from feature_store.feature import Feature
 @dataclass
 class Client:
     registry: Backend = field(default_factory=LocalStorageBackend)
-    auth: Auth = field(default_factory=Auth)
+    auth: AuthType = field(default_factory=FileAuth)
 
     def get_features(self) -> list[Feature]:
         """Get all features stored in the feature store"""

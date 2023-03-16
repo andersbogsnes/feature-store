@@ -5,7 +5,7 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-from feature_store.auth.base import Auth
+from feature_store.auth import AuthType
 from feature_store.stores.base import Store
 from feature_store.stores.parquet import ParquetFeatureStore
 from feature_store.stores.sql import SQLAlchemyFeatureStore
@@ -26,11 +26,11 @@ class Feature:
     def to_pandas(self) -> pd.DataFrame:
         return cast(pd.DataFrame, self._data.to_pandas())
 
-    def download_data(self, auth: Auth):
+    def download_data(self, auth: AuthType):
         self._data = self.store.download_data(self, auth)
         return self
 
-    def upload_data(self, df: pd.DataFrame, auth: Auth) -> "Feature":
+    def upload_data(self, df: pd.DataFrame, auth: AuthType) -> "Feature":
         """Upload a batch of data to the URI"""
         # noinspection PyArgumentList
         data = pa.Table.from_pandas(df, preserve_index=True)
