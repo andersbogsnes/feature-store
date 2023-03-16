@@ -6,7 +6,7 @@ from typing import Generator, Optional
 import sqlalchemy as sa
 from sqlalchemy.orm import Session, registry
 
-from feature_store.auth.base import Auth
+from feature_store.auth import AuthType
 from feature_store.feature import Feature
 
 mapped_registry: registry = registry()
@@ -32,7 +32,7 @@ class FeatureTable:
             name=feature.name, uri=feature.uri, auth_key=feature.auth_key
         )
 
-    def to_feature(self, auth: Optional[Auth] = None) -> Feature:
+    def to_feature(self, auth: Optional[AuthType] = None) -> Feature:
         return Feature(name=self.name, uri=self.uri, auth_key=self.auth_key)
 
 
@@ -56,7 +56,7 @@ class DatabaseStorageBackend:
             session.commit()
 
     def get_feature_metadata(
-        self, feature_name: str, auth: Optional[Auth] = None
+        self, feature_name: str, auth: Optional[AuthType] = None
     ) -> Optional[Feature]:
         sql = sa.select(FeatureTable).where(FeatureTable.name == feature_name)
 
@@ -65,7 +65,7 @@ class DatabaseStorageBackend:
 
         return None if result is None else result.to_feature(auth)
 
-    def get_all_features(self, auth: Optional[Auth] = None) -> list[Feature]:
+    def get_all_features(self, auth: Optional[AuthType] = None) -> list[Feature]:
         sql = sa.select(FeatureTable)
         with self._session() as session:
             result: list[FeatureTable] = session.execute(sql).scalars()

@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 import pyarrow as pa
 import sqlalchemy as sa
 
-from feature_store.auth.base import Auth
+from feature_store.auth import AuthType
 
 if TYPE_CHECKING:
     from feature_store.feature import Feature
@@ -20,7 +20,7 @@ class SQLAlchemyFeatureStore:
     def __init__(self):
         self.meta = sa.MetaData()
 
-    def download_data(self, feature: Feature, auth: Auth) -> pa.Table:
+    def download_data(self, feature: Feature, auth: AuthType) -> pa.Table:
         table = self.get_table(feature.uri)
         column = getattr(table, feature.name)
 

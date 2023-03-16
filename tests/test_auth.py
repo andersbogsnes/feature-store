@@ -3,12 +3,7 @@ import pathlib
 import pytest
 import yaml
 
-from feature_store.auth.base import Auth
-
-
-def test_looking_up_key_without_indicating_secret_location_returns_none():
-    auth = Auth()
-    assert auth.get("test_key") is None
+from feature_store.auth.file_auth import FileAuth
 
 
 @pytest.fixture
@@ -20,6 +15,23 @@ def config_file(tmp_path: pathlib.Path) -> pathlib.Path:
     return conf_file
 
 
-def test_can_lookup_auth_key_in_config_file(config_file: pathlib.Path):
-    auth = Auth(config_file=config_file)
-    assert auth.get("test_key") == "another_value"
+@pytest.fixture
+def file_auth(config_file: pathlib.Path) -> FileAuth:
+    return FileAuth(config_file=config_file)
+
+
+def test_can_lookup_auth_key_in_config_file(file_auth: FileAuth):
+    assert file_auth.get("test_key") == "another_value"
+
+
+def test_can_fetch_whole_file(file_auth: FileAuth):
+    assert file_auth._file_config == {"test_key": "another_value"}
+
+
+def test_non_existent_key_returns_none(file_auth: FileAuth):
+    assert file_auth.get("missing_key") is None
+
+
+def test_non_existent_file_returns_none():
+    auth = FileAuth()
+    assert auth.get("any_key") is None
