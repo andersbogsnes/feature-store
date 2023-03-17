@@ -21,7 +21,7 @@ class SQLAlchemyFeatureStore:
         self.meta = sa.MetaData()
 
     def download_data(self, feature: Feature, auth: AuthType) -> pa.Table:
-        table = self.get_table(feature.uri)
+        table = self.get_table(feature.location)
         column = getattr(table, feature.name)
 
         sql = sa.select([column])

@@ -3,7 +3,7 @@ import pathlib
 import pytest
 
 from feature_store.backends.local import LocalStorageBackend
-from feature_store.feature import Feature
+from feature_store.feature import Feature, FeatureKind
 
 
 @pytest.fixture
@@ -18,7 +18,13 @@ def backend(tmp_database_path: pathlib.Path) -> LocalStorageBackend:
 
 
 def test_can_add_feature_metadata(backend: LocalStorageBackend):
-    new_feature = Feature(name="age", uri="file:///age.parquet", auth_key=None)
+    new_feature = Feature(
+        name="age",
+        id_column="customer_id",
+        kind=FeatureKind.parquet,
+        location="age.parquet",
+        auth_key=None,
+    )
     backend.add_feature_metadata(new_feature)
     result = backend.get_feature_metadata(new_feature.name)
     assert result == new_feature
@@ -26,8 +32,20 @@ def test_can_add_feature_metadata(backend: LocalStorageBackend):
 
 def test_can_add_multiple_features(backend: LocalStorageBackend):
     features = [
-        Feature(name="age", uri="file:///age.parquet", auth_key=None),
-        Feature(name="height", uri="file:///height.parquet", auth_key=None),
+        Feature(
+            name="age",
+            id_column="customer_id",
+            kind=FeatureKind.parquet,
+            location="age.parquet",
+            auth_key=None,
+        ),
+        Feature(
+            name="height",
+            id_column="customer_id",
+            kind=FeatureKind.parquet,
+            location="height.parquet",
+            auth_key=None,
+        ),
     ]
 
     for feature in features:
