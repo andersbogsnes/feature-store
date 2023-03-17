@@ -7,7 +7,7 @@ from feature_store.auth.base import AuthType
 from feature_store.auth.file_auth import FileAuth
 from feature_store.backends.base import Backend
 from feature_store.backends.local import LocalStorageBackend
-from feature_store.feature import Feature
+from feature_store.feature import Feature, FeatureKind
 
 
 @dataclass
@@ -20,10 +20,23 @@ class Client:
         return self.registry.get_all_features()
 
     def register_feature(
-        self, feature_name: str, uri: str, auth_key: Optional[str] = None
+        self,
+        feature_name: str,
+        kind: FeatureKind,
+        location: str,
+        id_column: str,
+        date_column: str = "date_time",
+        auth_key: Optional[str] = None,
     ) -> Feature:
         """Register a new feature to the feature store."""
-        new_feature = Feature(name=feature_name, uri=uri, auth_key=auth_key)
+        new_feature = Feature(
+            name=feature_name,
+            kind=kind,
+            location=location,
+            id_column=id_column,
+            datetime_column=date_column,
+            auth_key=auth_key,
+        )
         self.registry.add_feature_metadata(new_feature)
         return new_feature
 

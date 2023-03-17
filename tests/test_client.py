@@ -12,14 +12,14 @@ def test_can_list_existing_features(client: Client):
 
 
 def test_can_add_new_feature_to_client(client: Client, age_feature: Feature):
-    expected = [age_feature]
+    expected = [age_feature.name]
     result = client.get_features()
-    assert expected == result
+    assert expected == [r.name for r in result]
 
 
 def test_can_get_metadata_from_feature(client: Client, age_feature: Feature):
     data = client.get_feature("age")
-    assert data.uri == age_feature.uri
+    assert data.location == age_feature.location
 
 
 def test_can_get_auth_from_metadata(client: Client, age_feature: Feature):
