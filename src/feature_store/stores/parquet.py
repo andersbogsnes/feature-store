@@ -14,7 +14,9 @@ if TYPE_CHECKING:
 
 class ParquetFeatureStore:
     def download_data(self, feature: Feature, auth: AuthType) -> pa.Table:
-        return pq.read_table(feature.location)
+        auth_dict = auth.get(feature.auth_key)
+
+        return pq.read_table(feature.location, **auth_dict)
 
     def upload_data(
         self, df: pd.DataFrame, feature: Feature, auth: AuthType

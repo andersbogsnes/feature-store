@@ -88,7 +88,7 @@ class DatabaseStorageBackend:
 
         return None if result is None else result.to_feature()
 
-    def get_all_features(self) -> list[Feature]:
+    def get_available_feature_metadata(self) -> list[Feature]:
         sql = sa.select(FeatureTable)
         with self._session() as session:
             result: list[FeatureTable] = session.execute(sql).scalars()

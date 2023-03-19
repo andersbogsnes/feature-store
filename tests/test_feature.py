@@ -1,3 +1,4 @@
+import pandas as pd
 import pytest
 
 from feature_store.exceptions import FeatureDataException
@@ -48,3 +49,11 @@ def test_dataset_cannot_be_constructed_without_data():
 
     with pytest.raises(FeatureDataException):
         feature_a + feature_b
+
+
+def test_dataset_can_convert_to_dataframe(
+    age_df: pd.DataFrame, height_df: pd.DataFrame, dataset: Dataset
+):
+    result = dataset.to_pandas()
+    expected = age_df.merge(height_df, on=["customer_id", "date_time"])
+    pd.testing.assert_frame_equal(result, expected)

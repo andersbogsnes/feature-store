@@ -29,9 +29,9 @@ def test_can_fetch_whole_file(file_auth: FileAuth):
 
 
 def test_non_existent_key_returns_none(file_auth: FileAuth):
-    assert file_auth.get("missing_key") is None
+    assert file_auth.get("missing_key") == {}
 
 
 def test_non_existent_file_returns_none():
     auth = FileAuth()
-    assert auth.get("any_key") is None
+    assert auth.get("any_key") == {}

@@ -1,6 +1,6 @@
-from typing import Protocol
+from typing import Any, Protocol
 
 
 class AuthType(Protocol):
-    def get(self, key: str) -> str:
+    def get(self, key: str) -> dict[str, Any]:
         ...
