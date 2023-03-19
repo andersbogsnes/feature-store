@@ -14,7 +14,7 @@ def backend() -> DatabaseStorageBackend:
 
 
 def test_can_get_all_features_when_backend_is_empty(backend: DatabaseStorageBackend):
-    assert backend.get_all_features() == []
+    assert backend.get_available_feature_metadata() == []
 
 
 def test_can_add_and_retrieve_features(backend: DatabaseStorageBackend):
@@ -40,5 +40,5 @@ def test_adding_new_feature_shows_up_in_all_features(backend: DatabaseStorageBac
         auth_key=None,
     )
     backend.add_feature_metadata(new_feature)
-    result = backend.get_all_features()
+    result = backend.get_available_feature_metadata()
     assert result == [new_feature]

@@ -73,6 +73,9 @@ class Feature:
 class Dataset:
     _data: pa.Table
 
+    def to_pandas(self) -> pd.DataFrame:
+        return self._data.to_pandas()
+
     @property
     def has_data(self) -> bool:
         return self._data is not None

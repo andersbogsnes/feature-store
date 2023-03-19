@@ -1,6 +1,7 @@
 import functools
 import pathlib
 from dataclasses import dataclass
+from typing import Any
 
 import yaml
 
@@ -9,9 +10,10 @@ import yaml
 class FileAuth:
     config_file: pathlib.Path = pathlib.Path("featurestore.yaml")
 
-    def get(self, key: str) -> str:
+    def get(self, key: str) -> dict[str, Any]:
         if key in self._file_config:
             return self._file_config[key]
+        return {}
 
     @functools.cached_property
     def _file_config(self) -> dict:

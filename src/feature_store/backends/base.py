@@ -10,5 +10,6 @@ class Backend(Protocol):
     def get_feature_metadata(self, feature_name: str) -> Optional[Feature]:
         ...
 
-    def get_all_features(self) -> list[Feature]:
+    def get_available_feature_metadata(self) -> list[Feature]:
+        """Get names of available feature"""
         ...
