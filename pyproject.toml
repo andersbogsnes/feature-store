@@ -20,7 +20,16 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: Implementation :: CPython",
 ]
-dependencies = ["pyarrow", "pandas", "polars", "pyyaml", "sqlalchemy", "fsspec"]
+dependencies = [
+    "pyarrow",
+    "pandas",
+    "polars",
+    "pyyaml",
+    "sqlalchemy",
+    "fsspec",
+    "dask[dataframe,distributed]",
+    "s3fs",
+]
 dynamic = ["version"]
 
 [project.optional-dependencies]

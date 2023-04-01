@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import dask.dataframe as dd
 import pyarrow as pa
 import sqlalchemy as sa
 
@@ -16,11 +17,11 @@ def _extract_table_parts(table_name: str) -> tuple[str, str]:
     return schema, table
 
 
+@dataclass
 class SQLAlchemyFeatureStore:
-    def __init__(self):
-        self.meta = sa.MetaData()
+    auth: AuthType
 
-    def download_data(self, feature: Feature, auth: AuthType) -> pa.Table:
+    def download_data(self, feature: Feature) -> pa.Table:
         table = self.get_table(feature.location)
         column = getattr(table, feature.name)
 
@@ -32,10 +33,6 @@ class SQLAlchemyFeatureStore:
             results = conn.execute(sql).all()
             return pa.Table.from_pylist(results)
 
-    def get_table(self, uri: str) -> sa.Table:
-        schema, table = _extract_table_parts(uri)
-        self.meta.reflect(self.engine, only=[table], schema=schema)
-        return self.meta.tables[table]
-
-    def get_engine(self, engine: str):
-        return sa.create_engine(engine, future=True)
+    def get_sql(self, feature: Feature) -> sa.Select:
+        schema, table_name = _extract_table_parts(feature.location)
+        table = sa.sql.table(table_name, schema=schema)

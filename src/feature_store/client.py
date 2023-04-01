@@ -4,6 +4,7 @@ from functools import reduce
 from typing import Optional
 
 import pandas as pd
+from dask.distributed import Client
 
 from feature_store.auth.base import AuthType
 from feature_store.auth.file_auth import FileAuth
@@ -16,6 +17,7 @@ from feature_store.feature import Dataset, Feature, FeatureKind
 class Client:
     registry: Backend = field(default_factory=LocalStorageBackend)
     auth: AuthType = field(default_factory=FileAuth)
+    client: Client = Client()
 
     def get_available_features(self) -> list[Feature]:
         """Get all features stored in the feature store"""
