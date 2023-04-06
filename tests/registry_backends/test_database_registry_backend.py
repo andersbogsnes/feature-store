@@ -1,7 +1,8 @@
 import pytest
 
-from feature_store.registry_backends.db import DatabaseRegistryBackend, mapped_registry
 from feature_store.feature import Feature, FeatureKind
+from feature_store.registry_backends.db import (DatabaseRegistryBackend,
+                                                mapped_registry)
 
 
 @pytest.fixture()

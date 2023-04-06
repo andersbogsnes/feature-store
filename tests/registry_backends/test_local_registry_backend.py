@@ -2,8 +2,8 @@ import pathlib
 
 import pytest
 
-from feature_store.registry_backends.local import LocalRegistryBackend
 from feature_store.feature import Feature, FeatureKind
+from feature_store.registry_backends.local import LocalRegistryBackend
 
 
 @pytest.fixture

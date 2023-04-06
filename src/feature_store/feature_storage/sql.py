@@ -6,6 +6,7 @@ import pandas as pd
 import pyarrow as pa
 import sqlalchemy as sa
 from sqlalchemy.engine import Engine
+
 from feature_store.auth import AuthType
 
 if TYPE_CHECKING:
@@ -21,11 +22,13 @@ class SQLAlchemyFeatureStorage:
     def __init__(self):
         self.meta = sa.MetaData()
 
-    def upload_data(self, df: pd.DataFrame, feature: Feature, auth: AuthType) -> pa.Table:
+    def upload_data(
+        self, df: pd.DataFrame, feature: Feature, auth: AuthType
+    ) -> pa.Table:
         schema, table = _extract_table_parts(feature.location)
         db_url = auth.get(feature.auth_key)["db_url"]
         engine = sa.create_engine(db_url, future=True)
-        df.to_sql(table, engine, schema=schema, if_exists='replace', index=False)
+        df.to_sql(table, engine, schema=schema, if_exists="replace", index=False)
         return pa.Table.from_pandas(df)
 
     def download_data(self, feature: Feature, auth: AuthType) -> pa.Table:
