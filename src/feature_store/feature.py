@@ -9,9 +9,9 @@ import pyarrow as pa
 
 from feature_store.auth import AuthType
 from feature_store.exceptions import FeatureDataException
-from feature_store.stores.base import Store
-from feature_store.stores.parquet import ParquetFeatureStore
-from feature_store.stores.sql import SQLAlchemyFeatureStore
+from feature_store.feature_storage.base import FeatureStorage
+from feature_store.feature_storage.parquet import ParquetFeatureStorage
+from feature_store.feature_storage.sql import SQLAlchemyFeatureStorage
 
 
 class FeatureKind(str, Enum):
@@ -19,13 +19,13 @@ class FeatureKind(str, Enum):
     sql = "sql"
 
 
-STORES: dict[FeatureKind, Type[Store]] = {
-    FeatureKind.parquet: ParquetFeatureStore,
-    FeatureKind.sql: SQLAlchemyFeatureStore,
+STORES: dict[FeatureKind, Type[FeatureStorage]] = {
+    FeatureKind.parquet: ParquetFeatureStorage,
+    FeatureKind.sql: SQLAlchemyFeatureStorage,
 }
 
 
-@dataclass
+@dataclass(repr=False)
 class Feature:
     name: str
     kind: FeatureKind
@@ -34,6 +34,9 @@ class Feature:
     datetime_column: str = "date_time"
     auth_key: Optional[str] = None
     _data: pa.Table = None
+
+    def __repr__(self):
+        return f"<Feature {self.name}>"
 
     def to_pandas(self) -> pd.DataFrame:
         return cast(pd.DataFrame, self._data.to_pandas())
@@ -48,7 +51,7 @@ class Feature:
         return self
 
     @property
-    def store(self) -> Store:
+    def store(self) -> FeatureStorage:
         return STORES[self.kind]()
 
     @property
@@ -69,7 +72,7 @@ class Feature:
         return Dataset(joined_data)
 
 
-@dataclass
+@dataclass(repr=False)
 class Dataset:
     _data: pa.Table
 
