@@ -1,0 +1,2 @@
+local_sqlite:
+    db_url: 'sqlite:///test.db'
