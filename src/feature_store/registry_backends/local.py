@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
-from feature_store.registry_backends.db import (DatabaseRegistryBackend,
-                                                mapped_registry)
+from feature_store.registry_backends.db import DatabaseRegistryBackend, mapped_registry
 
 
 @dataclass

@@ -3,20 +3,20 @@ import pytest
 
 from feature_store.exceptions import FeatureDataException
 from feature_store.feature import Dataset, Feature, FeatureKind
-from feature_store.stores.parquet import ParquetFeatureStore
-from feature_store.stores.sql import SQLAlchemyFeatureStore
+from feature_store.feature_storage.parquet import ParquetFeatureStorage
+from feature_store.feature_storage.sql import SQLAlchemyFeatureStorage
 
 
 @pytest.fixture()
-def dataset(age_feature: Feature, height_feature: Feature) -> Dataset:
-    return age_feature + height_feature
+def dataset(age_parquet_feature, height_parquet_feature) -> Dataset:
+    return age_parquet_feature + height_parquet_feature
 
 
 @pytest.mark.parametrize(
     "feature_type,store",
     [
-        (FeatureKind.parquet, ParquetFeatureStore),
-        (FeatureKind.sql, SQLAlchemyFeatureStore),
+        (FeatureKind.parquet, ParquetFeatureStorage),
+        (FeatureKind.sql, SQLAlchemyFeatureStorage),
     ],
 )
 def test_feature_kind_uses_correct_store(feature_type: FeatureKind, store):
@@ -27,7 +27,7 @@ def test_feature_kind_uses_correct_store(feature_type: FeatureKind, store):
 
 
 def test_dataset_has_correct_columns(
-    age_feature: Feature, height_feature: Feature, dataset: Dataset
+    age_parquet_feature, height_parquet_feature, dataset: Dataset
 ):
     expected_columns = ["customer_id", "age", "date_time", "height"]
     assert dataset._data.column_names == expected_columns
