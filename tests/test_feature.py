@@ -23,7 +23,7 @@ def test_feature_kind_uses_correct_store(feature_type: FeatureKind, store):
     feature = Feature(
         name="test", id_column="id_col", kind=feature_type, location="test"
     )
-    assert isinstance(feature.store, store)
+    assert feature.store == store
 
 
 def test_dataset_has_correct_columns(

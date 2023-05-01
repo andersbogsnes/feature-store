@@ -1,2 +1,3 @@
-local_sqlite:
+sources:
+  local_sqlite:
     db_url: 'sqlite:///test.db'

@@ -42,17 +42,20 @@ class Feature:
         return cast(pd.DataFrame, self._data.to_pandas())
 
     def download_data(self, auth: AuthType):
-        self._data = self.store.download_data(self, auth)
+        auth_config = auth.get_sources_key(self.auth_key)
+        self._data = self.store(**auth_config).download_data(self)
         return self
 
     def upload_data(self, df: pd.DataFrame, auth: AuthType) -> Feature:
         """Upload a batch of data to the URI"""
-        self._data = self.store.upload_data(df, self, auth)
+        self._data = self.store(**auth.get_sources_key(self.auth_key)).upload_data(
+            df, self
+        )
         return self
 
     @property
-    def store(self) -> FeatureStorage:
-        return STORES[self.kind]()
+    def store(self) -> Type[FeatureStorage]:
+        return STORES[self.kind]
 
     @property
     def has_data(self) -> bool:

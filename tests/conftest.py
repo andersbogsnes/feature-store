@@ -46,7 +46,9 @@ def height_df() -> pd.DataFrame:
 
 @pytest.fixture
 def config(tmp_path: pathlib.Path) -> pathlib.Path:
-    auth_dict = {"local_sqlite": {"db_url": f"sqlite:///{tmp_path}/features.db"}}
+    auth_dict = {
+        "sources": {"local_sqlite": {"db_url": f"sqlite:///{tmp_path}/features.db"}}
+    }
     config_file = tmp_path.joinpath("config.yaml")
     config_file.write_text(yaml.safe_dump(auth_dict))
     return config_file
