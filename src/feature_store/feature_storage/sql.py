@@ -27,7 +27,7 @@ class SQLAlchemyFeatureStorage:
 
     def upload_data(self, df: pd.DataFrame, feature: Feature) -> pa.Table:
         schema, table = _extract_table_parts(feature.location)
-        df.to_sql(table, self.engine, schema=schema, if_exists="replace", index=False)
+        df.to_sql(table, self.engine, schema=schema, if_exists="append", index=False)
         return pa.Table.from_pandas(df)
 
     def download_data(self, feature: Feature) -> pa.Table:

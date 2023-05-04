@@ -51,6 +51,21 @@ def test_dataset_cannot_be_constructed_without_data():
         feature_a + feature_b
 
 
+def test_can_add_feature_to_dataset(
+    dataset: Dataset, age_parquet_feature: Feature, height_parquet_feature: Feature
+):
+    price_feature = Feature(
+        name="price",
+        kind=FeatureKind.sql,
+        location="test",
+        id_column="id",
+    )
+
+    expected = [age_parquet_feature, height_parquet_feature, price_feature]
+    result = dataset + price_feature
+    assert result.features == expected
+
+
 def test_dataset_can_convert_to_dataframe(
     age_df: pd.DataFrame, height_df: pd.DataFrame, dataset: Dataset
 ):

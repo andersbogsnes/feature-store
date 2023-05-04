@@ -19,5 +19,5 @@ class ParquetFeatureStorage:
 
     def upload_data(self, df: pd.DataFrame, feature: Feature) -> pa.Table:
         data = pa.Table.from_pandas(df)
-        pq.write_table(data, feature.location)
+        pq.write_table(data, feature.location, **self.auth_kwargs)
         return data
