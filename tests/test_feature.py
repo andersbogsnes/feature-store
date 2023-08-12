@@ -23,7 +23,7 @@ def test_feature_kind_uses_correct_store(feature_type: FeatureKind, store):
     feature = Feature(
         name="test", id_column="id_col", kind=feature_type, location="test"
     )
-    assert isinstance(feature.store, store)
+    assert feature.store == store
 
 
 def test_dataset_has_correct_columns(
@@ -49,6 +49,21 @@ def test_dataset_cannot_be_constructed_without_data():
 
     with pytest.raises(FeatureDataException):
         feature_a + feature_b
+
+
+def test_can_add_feature_to_dataset(
+    dataset: Dataset, age_parquet_feature: Feature, height_parquet_feature: Feature
+):
+    price_feature = Feature(
+        name="price",
+        kind=FeatureKind.sql,
+        location="test",
+        id_column="id",
+    )
+
+    expected = [age_parquet_feature, height_parquet_feature, price_feature]
+    result = dataset + price_feature
+    assert result.features == expected
 
 
 def test_dataset_can_convert_to_dataframe(

@@ -10,9 +10,9 @@ import yaml
 class FileAuth:
     config_file: pathlib.Path = pathlib.Path("featurestore.yaml")
 
-    def get(self, key: str) -> dict[str, Any]:
-        if key in self._file_config:
-            return self._file_config[key]
+    def get_sources_key(self, key: str) -> dict[str, Any]:
+        if key in self._file_config.get("sources", {}):
+            return self._file_config["sources"][key]
         return {}
 
     @functools.cached_property

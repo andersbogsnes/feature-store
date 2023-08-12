@@ -12,6 +12,9 @@ if TYPE_CHECKING:
 
 
 class FeatureStorage(Protocol):
+    def __init__(self, *args, **kwargs):
+        pass
+
     def download_data(self, feature: Feature, auth: AuthType) -> pa.Table:
         ...
 
