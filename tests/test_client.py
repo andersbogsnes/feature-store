@@ -1,7 +1,9 @@
 import pandas as pd
+import pytest
 from pandas.testing import assert_frame_equal
 
 from feature_store import Client
+from feature_store.exceptions import FeatureNotFoundException
 from feature_store.feature import Feature
 
 
@@ -39,10 +41,15 @@ def test_can_get_dataset(
     client: Client, age_parquet_feature: Feature, height_parquet_feature: Feature
 ):
     result = client.get_dataset(
-        features=[age_parquet_feature.name, height_parquet_feature.name]
+        feature_names=[age_parquet_feature.name, height_parquet_feature.name]
     ).to_pandas()
     expected = age_parquet_feature.to_pandas().merge(
         height_parquet_feature.to_pandas(),
         on=[age_parquet_feature.id_column, age_parquet_feature.datetime_column],
     )
     pd.testing.assert_frame_equal(result, expected)
+
+
+def test_getting_a_feature_that_doesnt_exist_raises_not_found_exception(client: Client):
+    with pytest.raises(FeatureNotFoundException):
+        client.get_feature("idontexist")
