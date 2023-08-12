@@ -1,14 +1,15 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
+from functools import cached_property, reduce
 from typing import Optional, Type, Union, cast
 
 import pandas as pd
 import pyarrow as pa
 
 from feature_store.auth import AuthType
-from feature_store.exceptions import FeatureDataException
+from feature_store.exceptions import MismatchedFeatureException
 from feature_store.feature_storage.base import FeatureStorage
 from feature_store.feature_storage.parquet import ParquetFeatureStorage
 from feature_store.feature_storage.sql import SQLAlchemyFeatureStorage
@@ -27,6 +28,21 @@ STORES: dict[FeatureKind, Type[FeatureStorage]] = {
 
 @dataclass(repr=False)
 class Feature:
+    """
+    Represents a single Feature
+
+    Parameters
+    ----------
+    name:
+        The name of the Feature
+    kind:
+        The type of Feature
+    location:
+        Where the Feature is located in the storage backend
+    id_column:
+        The unique id of the feature - used to join with
+    """
+
     name: str
     kind: FeatureKind
     location: str
@@ -38,10 +54,20 @@ class Feature:
     def __repr__(self):
         return f"<Feature {self.name}>"
 
+    @property
+    def data(self):
+        """Return the underlying data, fetching it if not already fetched"""
+        if self._data is None:
+            return self.download_data()
+
+        return self._data
+
     def to_pandas(self) -> pd.DataFrame:
+        """Convert to pandas DataFrame"""
         return cast(pd.DataFrame, self._data.to_pandas())
 
     def download_data(self, auth: AuthType):
+        """Download the data from the source"""
         auth_config = auth.get_sources_key(self.auth_key)
         self._data = self.store(**auth_config).download_data(self)
         return self
@@ -55,6 +81,7 @@ class Feature:
 
     @property
     def store(self) -> Type[FeatureStorage]:
+        """Return the needed store to fetch the data"""
         return STORES[self.kind]
 
     @property
@@ -62,26 +89,52 @@ class Feature:
         return self._data is not None
 
     def __add__(self, other: Union[Feature, Dataset]) -> Dataset:
-        if not self.has_data:
-            raise FeatureDataException(f"The {self.name} feature has no data")
-        if not other.has_data:
-            raise FeatureDataException(f"The {other.name} feature has no data")
-
-        joined_data = self._data.join(
-            other._data,
-            keys=[self.id_column, self.datetime_column],
-            right_keys=[other.id_column, other.datetime_column],
-        )
-        return Dataset(joined_data)
+        if isinstance(other, Feature):
+            return Dataset(features=[self, other])
+        if isinstance(other, Dataset):
+            return Dataset(features=[*other.features, self])
+        return NotImplemented
 
 
-@dataclass(repr=False)
+@dataclass()
 class Dataset:
-    _data: pa.Table
+    features: list[Feature] = field(default_factory=list)
 
     def to_pandas(self) -> pd.DataFrame:
-        return self._data.to_pandas()
+        return self.data.to_pandas()
 
     @property
     def has_data(self) -> bool:
-        return self._data is not None
+        return self.features == []
+
+    @cached_property
+    def data(self) -> pa.Table:
+        initial_table = self.features[0].data
+        return reduce(join_features, self.features[1:], initial_table)
+
+    def __add__(self, other: Union[Dataset, Feature]):
+        if isinstance(other, Dataset):
+            return Dataset(features=[*self.features, *other.features])
+        if isinstance(other, Feature):
+            return Dataset(features=[*self.features, other])
+        return NotImplemented
+
+
+def join_features(table: pa.Table, feature_b: Feature) -> pa.Table:
+    existing_columns = table.column_names
+    if feature_b.id_column not in existing_columns:
+        raise MismatchedFeatureException(
+            f"Trying to join {feature_b.name} "
+            f"but {feature_b.id_column} not in "
+            f"existing columns {existing_columns}"
+        )
+    if feature_b.datetime_column not in existing_columns:
+        raise MismatchedFeatureException(
+            f"Trying to join {feature_b.name} "
+            f"but {feature_b.datetime_column} not in "
+            f"existing columns {existing_columns}"
+        )
+
+    return table.join(
+        feature_b.data, keys=[feature_b.id_column, feature_b.datetime_column]
+    )
