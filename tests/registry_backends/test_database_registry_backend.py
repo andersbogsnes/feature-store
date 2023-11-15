@@ -1,6 +1,6 @@
 import pytest
 
-from feature_store.feature import Feature, FeatureKind
+from feature_store.feature import Feature
 from feature_store.registry_backends.db import DatabaseRegistryBackend, mapped_registry
 
 
@@ -21,8 +21,7 @@ def test_can_add_and_retrieve_features(backend: DatabaseRegistryBackend):
     new_feature = Feature(
         name="test_feature",
         id_column="id",
-        kind=FeatureKind.parquet,
-        location="test.parquet",
+        location="sqlalchemy::test.parquet",
         auth_key=None,
     )
     backend.add_feature_metadata(new_feature)
@@ -35,8 +34,7 @@ def test_adding_new_feature_shows_up_in_all_features(backend: DatabaseRegistryBa
     new_feature = Feature(
         name="test_feature2",
         id_column="id_col",
-        kind=FeatureKind.parquet,
-        location="test.parquet",
+        location="local::test.parquet",
         auth_key=None,
     )
     backend.add_feature_metadata(new_feature)

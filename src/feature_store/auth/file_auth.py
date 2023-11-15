@@ -5,6 +5,9 @@ from typing import Any
 
 import yaml
 
+from feature_store.feature import STORES
+from feature_store.feature_storage import FeatureStorage
+
 
 @dataclass
 class FileAuth:
@@ -22,3 +25,9 @@ class FileAuth:
         with self.config_file.open() as f:
             config = yaml.safe_load(f)
         return config
+
+    def get_store(self, location: str) -> FeatureStorage:
+        key, _, _ = location.partition("::")
+        config = self.get_sources_key(key)
+        store_type = config["type"]
+        return STORES[store_type](self)

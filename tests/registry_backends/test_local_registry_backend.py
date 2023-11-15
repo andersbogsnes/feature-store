@@ -2,7 +2,7 @@ import pathlib
 
 import pytest
 
-from feature_store.feature import Feature, FeatureKind
+from feature_store.feature import Feature
 from feature_store.registry_backends.local import LocalRegistryBackend
 
 
@@ -21,8 +21,7 @@ def test_can_add_feature_metadata(backend: LocalRegistryBackend):
     new_feature = Feature(
         name="age",
         id_column="customer_id",
-        kind=FeatureKind.parquet,
-        location="age.parquet",
+        location="local::age.parquet",
         auth_key=None,
     )
     backend.add_feature_metadata(new_feature)
@@ -35,15 +34,13 @@ def test_can_add_multiple_features(backend: LocalRegistryBackend):
         Feature(
             name="age",
             id_column="customer_id",
-            kind=FeatureKind.parquet,
-            location="age.parquet",
+            location="local::age.parquet",
             auth_key=None,
         ),
         Feature(
             name="height",
             id_column="customer_id",
-            kind=FeatureKind.parquet,
-            location="height.parquet",
+            location="local::height.parquet",
             auth_key=None,
         ),
     ]

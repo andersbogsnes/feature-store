@@ -6,7 +6,7 @@ from typing import Generator, Optional
 import sqlalchemy as sa
 from sqlalchemy.orm import Session, registry
 
-from feature_store.feature import Feature, FeatureKind
+from feature_store.feature import Feature
 
 mapped_registry: registry = registry()
 
@@ -19,7 +19,6 @@ class FeatureTable:
     name: str = sa.Column(sa.String, unique=True, nullable=False)
     id_column: str = sa.Column(sa.String)
     datetime_column: str = sa.Column(sa.String, default="date_time")
-    kind: FeatureKind = sa.Column(sa.Enum(FeatureKind))
     location: str = sa.Column(sa.String, nullable=False)
     auth_key: str = sa.Column(sa.String, nullable=True)
 
@@ -28,14 +27,12 @@ class FeatureTable:
         name: str,
         id_column: str,
         datetime_column: str,
-        kind: FeatureKind,
         location: str,
         auth_key: Optional[str],
     ):
         self.name = name
         self.id_column = id_column
         self.datetime_column = datetime_column
-        self.kind = kind
         self.location = location
         self.auth_key = auth_key
 
@@ -45,7 +42,6 @@ class FeatureTable:
             name=feature.name,
             id_column=feature.id_column,
             datetime_column=feature.datetime_column,
-            kind=feature.kind,
             location=feature.location,
             auth_key=feature.auth_key,
         )
@@ -53,7 +49,6 @@ class FeatureTable:
     def to_feature(self) -> Feature:
         return Feature(
             name=self.name,
-            kind=self.kind,
             id_column=self.id_column,
             datetime_column=self.datetime_column,
             location=self.location,
