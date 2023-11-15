@@ -29,6 +29,11 @@ def age_df() -> pd.DataFrame:
 
 
 @pytest.fixture()
+def customer_table_df(age_df: pd.DataFrame, height_df: pd.DataFrame) -> pd.DataFrame:
+    return pd.merge(age_df, height_df, on=["customer_id", "date_time"])
+
+
+@pytest.fixture()
 def height_df() -> pd.DataFrame:
     n_customers = 100
 

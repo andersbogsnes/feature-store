@@ -32,8 +32,7 @@ class Client:
         """
         empty_dataset = Dataset(features=[])
         features = [
-            self.registry.get_feature_metadata(name).download_data(self.auth)
-            for name in feature_names
+            self.registry.get_feature_group_metadata(name) for name in feature_names
         ]
         return reduce(operator.add, features, empty_dataset)
 
@@ -67,7 +66,7 @@ class Client:
             datetime_column=date_column,
             auth_key=auth_key,
         )
-        self.registry.add_feature_metadata(new_feature)
+        self.registry.add_feature_group_metadata(new_feature)
         return new_feature
 
     def get_feature(self, feature_name: str) -> Optional[Feature]:
@@ -78,7 +77,7 @@ class Client:
         feature_name
             The name of the feature to get
         """
-        feature = self.registry.get_feature_metadata(feature_name)
+        feature = self.registry.get_feature_group_metadata(feature_name)
         if feature is None:
             raise FeatureNotFoundException(f"{feature_name} was not found")
         return feature.download_data(self.auth)
@@ -99,5 +98,5 @@ class Client:
         Feature
             The feature that the data was stored to
         """
-        feature = self.registry.get_feature_metadata(feature_name)
+        feature = self.registry.get_feature_group_metadata(feature_name)
         return feature.upload_data(data, auth=self.auth)
