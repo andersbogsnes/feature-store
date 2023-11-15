@@ -4,28 +4,12 @@ import pandas as pd
 import pytest
 
 from feature_store.exceptions import MismatchedFeatureException
-from feature_store.feature import Dataset, Feature, FeatureKind
-from feature_store.feature_storage.parquet import ParquetFeatureStorage
-from feature_store.feature_storage.sql import SQLAlchemyFeatureStorage
+from feature_store.feature import Dataset, Feature
 
 
 @pytest.fixture()
 def dataset(age_parquet_feature, height_parquet_feature) -> Dataset:
     return age_parquet_feature + height_parquet_feature
-
-
-@pytest.mark.parametrize(
-    "feature_type,store",
-    [
-        (FeatureKind.parquet, ParquetFeatureStorage),
-        (FeatureKind.sql, SQLAlchemyFeatureStorage),
-    ],
-)
-def test_feature_kind_uses_correct_store(feature_type: FeatureKind, store):
-    feature = Feature(
-        name="test", id_column="id_col", kind=feature_type, location="test"
-    )
-    assert feature.store == store
 
 
 def test_dataset_has_correct_columns(
@@ -40,8 +24,7 @@ def test_can_add_feature_to_dataset(
 ):
     price_feature = Feature(
         name="price",
-        kind=FeatureKind.sql,
-        location="test",
+        location="sqlalchemy::test",
         id_column="id",
     )
 

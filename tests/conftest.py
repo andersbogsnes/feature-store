@@ -8,7 +8,7 @@ import yaml
 
 from feature_store import Client
 from feature_store.auth.file_auth import FileAuth
-from feature_store.feature import Feature, FeatureKind
+from feature_store.feature import Feature
 from feature_store.registry_backends.local import LocalRegistryBackend
 
 
@@ -47,7 +47,13 @@ def height_df() -> pd.DataFrame:
 @pytest.fixture
 def config(tmp_path: pathlib.Path) -> pathlib.Path:
     auth_dict = {
-        "sources": {"local_sqlite": {"db_url": f"sqlite:///{tmp_path}/features.db"}}
+        "sources": {
+            "local_sqlite": {
+                "type": "sqlalchemy",
+                "db_url": f"sqlite:///{tmp_path}/features.db",
+            },
+            "local": {"type": "parquet", "uri": f"file:///{tmp_path}"},
+        }
     }
     config_file = tmp_path.joinpath("config.yaml")
     config_file.write_text(yaml.safe_dump(auth_dict))
@@ -64,27 +70,20 @@ def client(tmp_path: pathlib.Path, config: pathlib.Path) -> Client:
 
 
 @pytest.fixture()
-def age_parquet_feature(
-    client: Client, age_df: pd.DataFrame, tmp_path: pathlib.Path
-) -> Feature:
-    location = tmp_path.joinpath("age.parquet")
+def age_parquet_feature(client: Client, age_df: pd.DataFrame) -> Feature:
     age_feature = client.register_feature(
-        "age", id_column="customer_id", kind=FeatureKind.parquet, location=str(location)
+        "age", id_column="customer_id", location="local::age.parquet"
     )
     client.upload_feature_data(age_feature.name, age_df)
     return client.get_feature("age")
 
 
 @pytest.fixture()
-def height_parquet_feature(
-    client: Client, height_df: pd.DataFrame, tmp_path: pathlib.Path
-) -> Feature:
-    location = tmp_path.joinpath("height.parquet")
+def height_parquet_feature(client: Client, height_df: pd.DataFrame) -> Feature:
     height_feature = client.register_feature(
         "height",
         id_column="customer_id",
-        kind=FeatureKind.parquet,
-        location=str(location),
+        location="local::height.parquet",
     )
     client.upload_feature_data(height_feature.name, height_df)
     return client.get_feature("height")
@@ -93,11 +92,7 @@ def height_parquet_feature(
 @pytest.fixture()
 def age_sql_feature(client: Client, age_df: pd.DataFrame) -> Feature:
     age_feature = client.register_feature(
-        "age",
-        id_column="customer_id",
-        kind=FeatureKind.sql,
-        location="main.age",
-        auth_key="local_sqlite",
+        "age", id_column="customer_id", location="local_sqlite::main.age"
     )
     client.upload_feature_data(age_feature.name, age_df)
     return client.get_feature("age")
@@ -108,9 +103,7 @@ def height_sql_feature(client: Client, height_df: pd.DataFrame) -> Feature:
     height_feature = client.register_feature(
         "height",
         id_column="customer_id",
-        kind=FeatureKind.sql,
-        location="main.height",
-        auth_key="local_sqlite",
+        location="local_sqlite::main.height",
     )
     client.upload_feature_data(height_feature.name, height_df)
     return client.get_feature("height")

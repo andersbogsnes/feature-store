@@ -3,7 +3,12 @@ import pathlib
 import pytest
 import yaml
 
+from feature_store import Client
 from feature_store.auth.file_auth import FileAuth
+from feature_store.feature_storage import (
+    ParquetFeatureStorage,
+    SQLAlchemyFeatureStorage,
+)
 
 
 @pytest.fixture
@@ -35,3 +40,17 @@ def test_non_existent_key_returns_none(file_auth: FileAuth):
 def test_non_existent_file_returns_none():
     auth = FileAuth()
     assert auth.get_sources_key("any_key") == {}
+
+
+@pytest.mark.parametrize(
+    "location,store",
+    [
+        ("local::test.parquet", ParquetFeatureStorage),
+        ("local_sqlite::main.test", SQLAlchemyFeatureStorage),
+    ],
+)
+def test_auth_gets_correct_correct_storage_based_on_location(
+    client: Client, location: str, store
+):
+    result = client.auth.get_store(location)
+    assert isinstance(result, store)

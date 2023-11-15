@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from enum import Enum
 from functools import cached_property, reduce
-from typing import Optional, Type, Union, cast
+from typing import Any, Optional, Type, Union, cast
 
 import pandas as pd
 import pyarrow as pa
@@ -14,16 +13,16 @@ from feature_store.feature_storage.base import FeatureStorage
 from feature_store.feature_storage.parquet import ParquetFeatureStorage
 from feature_store.feature_storage.sql import SQLAlchemyFeatureStorage
 
-
-class FeatureKind(str, Enum):
-    parquet = "parquet"
-    sql = "sql"
-
-
-STORES: dict[FeatureKind, Type[FeatureStorage]] = {
-    FeatureKind.parquet: ParquetFeatureStorage,
-    FeatureKind.sql: SQLAlchemyFeatureStorage,
+STORES: dict[str, Type[FeatureStorage]] = {
+    storage.type: storage
+    for storage in [ParquetFeatureStorage, SQLAlchemyFeatureStorage]
 }
+
+
+def _get_store_from_config(config: dict[str, Any]) -> Type[FeatureStorage]:
+    """Return the needed store to fetch the data"""
+    store_type = config.pop("type")
+    return STORES[store_type](**config)
 
 
 @dataclass(repr=False)
@@ -35,8 +34,6 @@ class Feature:
     ----------
     name:
         The name of the Feature
-    kind:
-        The type of Feature
     location:
         Where the Feature is located in the storage backend
     id_column:
@@ -44,7 +41,6 @@ class Feature:
     """
 
     name: str
-    kind: FeatureKind
     location: str
     id_column: str
     datetime_column: str = "date_time"
@@ -68,21 +64,16 @@ class Feature:
 
     def download_data(self, auth: AuthType):
         """Download the data from the source"""
-        auth_config = auth.get_sources_key(self.auth_key)
-        self._data = self.store(**auth_config).download_data(self)
+
+        store = auth.get_store(self.location)
+        self._data = store.download_data(self)
         return self
 
     def upload_data(self, df: pd.DataFrame, auth: AuthType) -> Feature:
         """Upload a batch of data to the URI"""
-        self._data = self.store(**auth.get_sources_key(self.auth_key)).upload_data(
-            df, self
-        )
+        store = auth.get_store(self.location)
+        self._data = store.upload_data(df, self)
         return self
-
-    @property
-    def store(self) -> Type[FeatureStorage]:
-        """Return the needed store to fetch the data"""
-        return STORES[self.kind]
 
     @property
     def has_data(self) -> bool:

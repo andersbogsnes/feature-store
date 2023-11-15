@@ -8,7 +8,7 @@ import pandas as pd
 from feature_store.auth.base import AuthType
 from feature_store.auth.file_auth import FileAuth
 from feature_store.exceptions import FeatureNotFoundException
-from feature_store.feature import Dataset, Feature, FeatureKind
+from feature_store.feature import Dataset, Feature
 from feature_store.registry_backends.base import RegistryBackend
 from feature_store.registry_backends.local import LocalRegistryBackend
 
@@ -40,7 +40,6 @@ class Client:
     def register_feature(
         self,
         feature_name: str,
-        kind: FeatureKind,
         location: str,
         id_column: str,
         date_column: str = "date_time",
@@ -52,8 +51,6 @@ class Client:
         ----------
         feature_name
             The name of the feature. Should match the name of the column in the data
-        kind
-            The type of data. One of parquet or sql
         location
             The location of the data. Passed to the backend.
         id_column
@@ -65,7 +62,6 @@ class Client:
         """
         new_feature = Feature(
             name=feature_name,
-            kind=kind,
             location=location,
             id_column=id_column,
             datetime_column=date_column,
