@@ -6,18 +6,14 @@ import pandas as pd
 import pyarrow as pa
 
 if TYPE_CHECKING:
-    from feature_store.auth import AuthType
-    from feature_store.feature import Feature
+    from feature_store.feature import FeatureGroup
 
 
 class FeatureStorage(Protocol):
     type: ClassVar[str]
 
-    def __init__(self, auth: AuthType, *args, **kwargs):
+    def download_data(self, feature: FeatureGroup) -> pa.Table:
         ...
 
-    def download_data(self, feature: Feature) -> pa.Table:
-        ...
-
-    def upload_data(self, df: pd.DataFrame, feature: Feature) -> pa.Table:
+    def upload_data(self, df: pd.DataFrame, feature: FeatureGroup) -> pa.Table:
         ...

@@ -1,7 +1,7 @@
 import pytest
 
 from feature_store.feature import Feature
-from feature_store.registry_backends.db import DatabaseRegistryBackend, mapped_registry
+from feature_store.registry_backends.db import Base, DatabaseRegistryBackend
 
 
 @pytest.fixture()
@@ -9,7 +9,7 @@ def backend() -> DatabaseRegistryBackend:
     database_uri = "sqlite:///:memory:"
 
     db_backend = DatabaseRegistryBackend(database_uri)
-    mapped_registry.metadata.create_all(db_backend._engine)
+    Base.metadata.create_all(db_backend._engine)
     return db_backend
 
 
