@@ -35,7 +35,11 @@ class Client:
             The list of features that should be included in the dataset
         """
 
+        if any("." not in feature for feature in feature_names):
+            raise FeatureNotFoundException("Features must contain a period ('.')")
+
         feature_dict = defaultdict(list)
+
         for feature_group_name, feature_name in (
             feature.split(".") for feature in feature_names
         ):
@@ -110,15 +114,7 @@ class Client:
         feature_name
             The name of the feature to get
         """
-        feature_group = self.registry.get_feature_group_metadata(feature_name)
-        if feature_group is None:
-            raise FeatureNotFoundException(f"{feature_name} was not found")
-        store = self.auth.get_store(feature_group.location)
-        table = store.download_data(feature_group)
-        for feature in feature_group.features:
-            feature.read_data(table)
-        data = Dataset(features=feature_group.features)
-        return data
+        return self.get_features([feature_name])
 
     def upload_feature_data(
         self, feature_group_name: str, data: pd.DataFrame
