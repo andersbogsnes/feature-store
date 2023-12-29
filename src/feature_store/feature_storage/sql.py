@@ -35,11 +35,7 @@ class SQLAlchemyFeatureStorage:
 
     def download_data(self, feature: FeatureGroup) -> pa.Table:
         table = self.get_table(feature.location)
-        column = getattr(table.c, feature.name)
-        id_column = getattr(table.c, feature.id_column)
-        date_column = getattr(table.c, feature.datetime_column)
-
-        sql = sa.select(id_column, date_column, column)
+        sql = sa.select(table)
 
         with self.engine.connect() as conn:
             results = conn.execute(sql).mappings().all()
