@@ -47,3 +47,20 @@ def test_can_get_multiple_features(
 def test_getting_a_feature_that_doesnt_exist_raises_not_found_exception(client: Client):
     with pytest.raises(FeatureNotFoundException):
         client.get_feature("idontexist")
+
+
+def test_can_get_feature(
+    client: Client, age_df: pd.DataFrame, customer_feature_group_parquet: FeatureGroup
+):
+    result = client.get_feature("customer.age")
+    pd.testing.assert_frame_equal(result.to_pandas(), age_df, check_like=True)
+
+
+def test_feature_group_can_be_downloaded_from_sql(
+    client: Client,
+    customer_feature_group_sql: FeatureGroup,
+    customer_table_df: pd.DataFrame,
+):
+    ds = client.get_features(["customer.age", "customer.height"])
+    result = ds.to_pandas()
+    pd.testing.assert_frame_equal(customer_table_df, result, check_like=True)

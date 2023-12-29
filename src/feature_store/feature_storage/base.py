@@ -12,7 +12,9 @@ if TYPE_CHECKING:
 class FeatureStorage(Protocol):
     type: ClassVar[str]
 
-    def download_data(self, feature: FeatureGroup) -> pa.Table:
+    def download_data(
+        self, feature: FeatureGroup, feature_names: list[str] | None = None
+    ) -> pa.Table:
         ...
 
     def upload_data(self, df: pd.DataFrame, feature: FeatureGroup) -> pa.Table:

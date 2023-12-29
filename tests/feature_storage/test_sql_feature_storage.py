@@ -1,11 +1,17 @@
+import pathlib
+
 import pandas as pd
+import pytest
 
-from feature_store import Client
-from feature_store.feature import FeatureGroup
+from feature_store.feature_storage import SQLAlchemyFeatureStorage
 
 
-def test_can_get_feature(
-    client: Client, age_df: pd.DataFrame, customer_feature_group_parquet: FeatureGroup
+@pytest.fixture
+def sql_feature_storage(tmp_path: pathlib.Path) -> SQLAlchemyFeatureStorage:
+    return SQLAlchemyFeatureStorage(db_url=f"sqlite:///{tmp_path.joinpath('test.db')}")
+
+
+def test_sql_feature_storage_can_upload_a_feature_group(
+    sql_feature_storage: SQLAlchemyFeatureStorage, customer_table_df: pd.DataFrame
 ):
-    result = client.get_feature("customer.age")
-    pd.testing.assert_frame_equal(result.to_pandas(), age_df, check_like=True)
+    sql = sql_feature_storage.upload_data()
