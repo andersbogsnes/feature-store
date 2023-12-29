@@ -38,6 +38,9 @@ class FeatureGroup:
     features: list[Feature] = field(default_factory=list)
     datetime_column: str = "date_time"
 
+    def __repr__(self):
+        return f"FeatureGroup(name={self.name}, location={self.location})"
+
 
 @dataclass(repr=False)
 class Feature:
