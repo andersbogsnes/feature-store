@@ -12,3 +12,7 @@ class MismatchedFeatureException(FeatureDataException):
 
 class FeatureNotFoundException(FeatureStoreException):
     """Exception that occurs when trying to fetch a feature that doesn't exist"""
+
+
+class MissingDataException(FeatureDataException):
+    """Exception that occurs when trying to access missing data"""

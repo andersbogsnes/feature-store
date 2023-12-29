@@ -26,7 +26,7 @@ def file_auth(config_file: pathlib.Path) -> FileAuth:
 
 
 def test_can_lookup_auth_key_in_config_file(file_auth: FileAuth):
-    assert file_auth.get_sources_key("test_key") == "another_value"
+    assert file_auth._get_sources_key("test_key") == "another_value"
 
 
 def test_can_fetch_whole_file(file_auth: FileAuth):
@@ -34,12 +34,12 @@ def test_can_fetch_whole_file(file_auth: FileAuth):
 
 
 def test_non_existent_key_returns_none(file_auth: FileAuth):
-    assert file_auth.get_sources_key("missing_key") == {}
+    assert file_auth._get_sources_key("missing_key") == {}
 
 
 def test_non_existent_file_returns_none():
     auth = FileAuth()
-    assert auth.get_sources_key("any_key") == {}
+    assert auth._get_sources_key("any_key") == {}
 
 
 @pytest.mark.parametrize(

@@ -2,7 +2,7 @@ import pathlib
 
 import pytest
 
-from feature_store.feature import Feature
+from feature_store.feature import FeatureGroup
 from feature_store.registry_backends.local import LocalRegistryBackend
 
 
@@ -18,35 +18,35 @@ def backend(tmp_database_path: pathlib.Path) -> LocalRegistryBackend:
 
 
 def test_can_add_feature_metadata(backend: LocalRegistryBackend):
-    new_feature = Feature(
+    new_feature = FeatureGroup(
         name="age",
         id_column="customer_id",
         location="local::age.parquet",
-        auth_key=None,
+        description="Age of customer",
     )
-    backend.add_feature_metadata(new_feature)
-    result = backend.get_feature_metadata(new_feature.name)
+    backend.add_feature_group_metadata(new_feature)
+    result = backend.get_feature_group_metadata(new_feature.name)
     assert result == new_feature
 
 
 def test_can_add_multiple_features(backend: LocalRegistryBackend):
     features = [
-        Feature(
+        FeatureGroup(
             name="age",
             id_column="customer_id",
             location="local::age.parquet",
-            auth_key=None,
+            description="Age of customer",
         ),
-        Feature(
+        FeatureGroup(
             name="height",
             id_column="customer_id",
             location="local::height.parquet",
-            auth_key=None,
+            description="Height of customer",
         ),
     ]
 
     for feature in features:
-        backend.add_feature_metadata(feature)
-        result = backend.get_feature_metadata(feature.name)
+        backend.add_feature_group_metadata(feature)
+        result = backend.get_feature_group_metadata(feature.name)
 
         assert result == feature

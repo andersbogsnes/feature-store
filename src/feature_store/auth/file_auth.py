@@ -13,7 +13,7 @@ from feature_store.feature_storage import FeatureStorage
 class FileAuth:
     config_file: pathlib.Path = pathlib.Path("featurestore.yaml")
 
-    def get_sources_key(self, key: str) -> dict[str, Any]:
+    def _get_sources_key(self, key: str) -> dict[str, Any]:
         if key in self._file_config.get("sources", {}):
             return self._file_config["sources"][key]
         return {}
@@ -28,6 +28,6 @@ class FileAuth:
 
     def get_store(self, location: str) -> FeatureStorage:
         key, _, _ = location.partition("::")
-        config = self.get_sources_key(key)
-        store_type = config["type"]
-        return STORES[store_type](self)
+        config = {**self._get_sources_key(key)}
+        store_type = config.pop("type")
+        return STORES[store_type](**config)

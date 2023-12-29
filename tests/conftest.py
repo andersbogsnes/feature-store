@@ -8,7 +8,7 @@ import yaml
 
 from feature_store import Client
 from feature_store.auth.file_auth import FileAuth
-from feature_store.feature import Feature
+from feature_store.feature import FeatureGroup
 from feature_store.registry_backends.local import LocalRegistryBackend
 
 
@@ -26,6 +26,11 @@ def age_df() -> pd.DataFrame:
             "date_time": [*batch_1_date, *batch_2_date],
         }
     )
+
+
+@pytest.fixture()
+def customer_table_df(age_df: pd.DataFrame, height_df: pd.DataFrame) -> pd.DataFrame:
+    return pd.merge(age_df, height_df, on=["customer_id", "date_time"])
 
 
 @pytest.fixture()
@@ -70,40 +75,29 @@ def client(tmp_path: pathlib.Path, config: pathlib.Path) -> Client:
 
 
 @pytest.fixture()
-def age_parquet_feature(client: Client, age_df: pd.DataFrame) -> Feature:
-    age_feature = client.register_feature(
-        "age", id_column="customer_id", location="local::age.parquet"
-    )
-    client.upload_feature_data(age_feature.name, age_df)
-    return client.get_feature("age")
-
-
-@pytest.fixture()
-def height_parquet_feature(client: Client, height_df: pd.DataFrame) -> Feature:
-    height_feature = client.register_feature(
-        "height",
+def customer_feature_group_parquet(
+    client: Client, customer_table_df: pd.DataFrame
+) -> FeatureGroup:
+    customer_feature_group = client.register_feature_group(
+        "customer",
         id_column="customer_id",
-        location="local::height.parquet",
+        location="local::customer.parquet",
+        description="Customer features",
+        features=["age", "height"],
     )
-    client.upload_feature_data(height_feature.name, height_df)
-    return client.get_feature("height")
+    return client.upload_feature_data(customer_feature_group.name, customer_table_df)
 
 
 @pytest.fixture()
-def age_sql_feature(client: Client, age_df: pd.DataFrame) -> Feature:
-    age_feature = client.register_feature(
-        "age", id_column="customer_id", location="local_sqlite::main.age"
-    )
-    client.upload_feature_data(age_feature.name, age_df)
-    return client.get_feature("age")
-
-
-@pytest.fixture()
-def height_sql_feature(client: Client, height_df: pd.DataFrame) -> Feature:
-    height_feature = client.register_feature(
-        "height",
+def customer_feature_group_sql(
+    client: Client, customer_table_df: pd.DataFrame
+) -> FeatureGroup:
+    customer_feature_group = client.register_feature_group(
+        "customer",
         id_column="customer_id",
-        location="local_sqlite::main.height",
+        location="local_sqlite::customer",
+        description="Customer features",
+        features=["age", "height"],
     )
-    client.upload_feature_data(height_feature.name, height_df)
-    return client.get_feature("height")
+    client.upload_feature_data(customer_feature_group.name, customer_table_df)
+    return customer_feature_group
