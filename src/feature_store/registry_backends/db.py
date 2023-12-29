@@ -81,7 +81,9 @@ class DatabaseRegistryBackend:
 
     @cached_property
     def _engine(self) -> sa.engine.Engine:
-        return sa.create_engine(self.database_url, future=True)
+        engine = sa.create_engine(self.database_url)
+        Base.metadata.create_all(engine)
+        return engine
 
     @contextlib.contextmanager
     def _session(self) -> Generator[Session, None, None]:

@@ -95,7 +95,7 @@ def customer_feature_group_sql(
     customer_feature_group = client.register_feature_group(
         "customer",
         id_column="customer_id",
-        location="local_sqlite::customer",
+        location="local_sqlite::main.customer",
         description="Customer features",
         features=["age", "height"],
     )
