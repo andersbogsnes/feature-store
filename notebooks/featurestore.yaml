@@ -1,3 +1,4 @@
 sources:
   local_sqlite:
+    type: "sqlalchemy"
     db_url: 'sqlite:///test.db'
