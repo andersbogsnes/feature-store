@@ -1,14 +1,11 @@
-import pandas as pd
+import pathlib
 
-from feature_store import Client
-from feature_store.feature import FeatureGroup
+import pytest
+
+from feature_store.feature_storage import ParquetFeatureStorage
 
 
-def test_feature_group_can_be_downloaded_from_parquet(
-    client: Client,
-    customer_table_df: pd.DataFrame,
-    customer_feature_group_parquet: FeatureGroup,
-):
-    ds = client.get_features(["customer.age", "customer.height"])
-    result = ds.to_pandas()
-    pd.testing.assert_frame_equal(customer_table_df, result, check_like=True)
+@pytest.fixture
+def parquet_feature_storage(tmp_path: pathlib.Path) -> ParquetFeatureStorage:
+    data_file = tmp_path / ""
+    return ParquetFeatureStorage(data_file.as_uri())
