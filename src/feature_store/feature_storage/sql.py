@@ -28,8 +28,8 @@ class SQLAlchemyFeatureStorage:
     def engine(self) -> Engine:
         return sa.create_engine(self.db_url)
 
-    def upload_data(self, df: pd.DataFrame, feature: FeatureGroup) -> pa.Table:
-        schema, table = _extract_table_parts(feature.location)
+    def upload_data(self, df: pd.DataFrame, feature_group: FeatureGroup) -> pa.Table:
+        schema, table = _extract_table_parts(feature_group.location)
         df.to_sql(table, self.engine, schema=schema, if_exists="append", index=False)
         return pa.Table.from_pandas(df)
 
