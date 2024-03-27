@@ -6,5 +6,4 @@ from feature_store.feature_storage import FeatureStorage
 
 
 class AuthType(Protocol):
-    def get_store(self, location: str) -> FeatureStorage:
-        ...
+    def get_store(self, location: str) -> FeatureStorage: ...
